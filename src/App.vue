@@ -52,7 +52,7 @@
 
     <v-app-bar app color="success" dark>
       <!-- -->
-      <v-app-bar-nav-icon @click.stop="drawer- !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>SanberCoe App</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
@@ -83,7 +83,7 @@ export default {
   name: 'App',
 
   data: () => ({
-    drawer : true,
+    drawer : false,
     menus : [
       {
         title: 'Home',
