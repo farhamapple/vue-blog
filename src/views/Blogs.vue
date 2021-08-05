@@ -4,19 +4,7 @@
       All Blogs
     </v-subheader>
     <v-layout wrap>
-      <v-flex v-for="blog in blogs" :key="`blog-`+blog.id" xs6>
-         <v-card :to="`/blog/`+ blog.id">
-          <v-img :src="blog.photo ? apiDomain + blog.photo : 'https://picsum.photos/200/300'" class="white--text" height="200px" ></v-img>
-
-            <v-card-actions>
-              <v-progress-linear color="blue-grey" height="7"></v-progress-linear>
-            </v-card-actions>
-
-            <v-card-actions>
-              <span>{{ blog.title.substring(0, 15) }}...</span>
-            </v-card-actions>
-          </v-card>
-      </v-flex>
+      <blog-item-component  v-for="blog in blogs" :key="`blog-`+blog.id" :blog="blog"></blog-item-component>
     </v-layout>
     <v-pagination v-model="page" @input="go" :length="lengthPage" :total-visible="perPage">
 
@@ -25,6 +13,7 @@
 </template>
 
 <script>
+import BlogItemComponentVue from '../components/BlogItemComponent.vue';
     export default{
         data: () => ({
             apiDomain : 'http://demo-api-vue.sanbercloud.com' ,
@@ -33,7 +22,9 @@
             lengthPage : 0,
             perPage : 0
         }),
-
+        components : {
+          'blog-item-component' : BlogItemComponentVue
+        },
         methods : {
           go(){
               const config = {

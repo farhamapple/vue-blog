@@ -6,55 +6,68 @@
       </v-btn>
     </div>
     <v-layout wrap>
-      <v-flex v-for="blog in blogs" :key="`blog-`+blog.id" xs6>
-         <v-card :to="`/blog/`+ blog.id">
-          <v-img :src="blog.photo ? apiDomain + blog.photo : 'https://picsum.photos/200/300'" class="white--text" height="200px" ></v-img>
-
-            <v-card-actions>
-              <v-progress-linear color="blue-grey" height="7"></v-progress-linear>
-            </v-card-actions>
-
-            <v-card-actions>
-              <span>{{ blog.title.substring(0, 15) }}...</span>
-            </v-card-actions>
-          </v-card>
-        <!-- v-card :to="'/blog/'" + blog.id>
-            <v-img :src="blog.photo ? apiDomain + blog.photo : 'https://picsum.photos/200/300'" class="white--text" height="200px">
-              <v-card-title class="fill-height align-end" v-text="blog.title"></v-card-title>
-            </v-img>
-
-            <v-card-actions>
-              <v-progress-linear color="blue-grey" height="7"></v-progress-linear>
-            </v-card-actions>
-
-            <v-card-actions>
-              <span>{{ blog.title.substring(0, 15) }}...</span>
-            </v-card-actions>
-        </v-card -->
-      </v-flex>
+      <blog-item-component  v-for="blog in blogs" :key="`blog-`+blog.id" :blog="blog"></blog-item-component>
     </v-layout>
+
+    <!-- <button @click="action_tambah(10)">Tambah</button> -->
+    <button @click="action_tambah(10)">Tambah</button>
+    {{ count }}
   </v-container>
 </template>
 
 <script>
+import BlogItemComponentVue from '../components/BlogItemComponent.vue';
+import { mapMutations, mapGetters } from 'vuex'
     export default{
         data: () => ({
             apiDomain : 'http://demo-api-vue.sanbercloud.com' ,
             blogs : [],
         }),
-        created(){
-          const config = {
-            method : 'get',
-            url : this.apiDomain + '/api/v2/blog/random/4'
-          }
+        components : {
+          'blog-item-component' : BlogItemComponentVue
+        },
+        computed: {
+          // Kirim ke Vuext
 
-          this.axios(config)
-          .then(response => {
-            let { blogs } = response.data;
-            this.blogs = blogs;
-          }).catch( error => {
-            console.log(error)
-          });
+          // Cara 1
+          // count(){
+          //   return this.$store.getters.count
+          // }
+
+          /// Cara 2
+          ...mapGetters({
+            'count' : 'counter/count'
+          })
+        },
+        methods: {
+          go(){
+              const config = {
+              method : 'get',
+              url : this.apiDomain + '/api/v2/blog/random/4'
+            }
+
+            this.axios(config)
+            .then(response => {
+              let { blogs } = response.data;
+              this.blogs = blogs;
+            }).catch( error => {
+              console.log(error)
+            });
+          },
+          // Kirim ke Vuext
+          // Cara 1
+          // action_tambah(payload){
+          //   this.$store.commit('increment', payload)
+          // }
+
+          // Cara 2
+          ...mapMutations({
+            'action_tambah' : 'counter/increment'
+          })
+        },
+        created(){
+
+          this.go()
         }
     }
 </script>

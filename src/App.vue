@@ -1,5 +1,8 @@
 <template>
   <v-app>
+    
+    <alert/>
+
     <v-navigation-drawer app v-model="drawer">
       <!-- -->
       <v-list>
@@ -13,7 +16,7 @@
         </v-list-item>
 
         <div class="pa-2" v-if="guest">
-          <v-btn block color="primary" class="mb-1">
+          <v-btn block color="primary" class="mb-1" @click="login">
             <v-icon left>mdi-lock</v-icon>
             Login
           </v-btn>
@@ -78,8 +81,13 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+//import Alert from './components/Alert.vue';
 
 export default {
+  components: { 
+    Alert : () => import('./components/Alert.vue')
+  },
   name: 'App',
 
   data: () => ({
@@ -96,8 +104,38 @@ export default {
         route : '/blogs'
       },
     ],
-    guest : true
+    guest : true,
+    //snackbarStatus: false,
+    //snackbarText: 'Anda Berhasil Login'
   }),
+  mounted(){
+    //this.snackbarStatus = true
+  },
+  methods : {
+    logout(){
+      this.guest = true,
+      this.setAlert({
+        status: true,
+        color : 'success',
+        text : 'Anda Berhasil Logout'
+      })
+    },
+
+    login(){
+      this.guest = false,
+      this.setAlert({
+        status: true,
+        color : 'success',
+        text : 'Anda Berhasil Logout'
+      })
+    },
+
+    ...mapActions({
+      setAlert : 'alert/set'
+    })
+    
+
+  }
 
 };
 </script>
