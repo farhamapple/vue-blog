@@ -1,18 +1,24 @@
 <template>
   <v-app>
-    
-    <alert/>
+    <Alert />
+    <Dialog />
 
     <v-navigation-drawer app v-model="drawer">
       <!-- -->
       <v-list>
         <v-list-item v-if="!guest">
-            <v-list-item-avatar>
-              <v-img src="https://randomuser.me/api/portrails/men/78.jpg"></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>Farham Harvianto</v-list-item-title>
-            </v-list-item-content>
+          <v-list-item-avatar>
+            <v-img
+              :src="
+                user.photo_profile
+                  ? apiDomain + user.photo_profile
+                  : 'https://randomuser.me/api/portraits/men/78.jpg'
+              "
+            ></v-img>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ user.name }}</v-list-item-title>
+          </v-list-item-content>
         </v-list-item>
 
         <div class="pa-2" v-if="guest">
@@ -26,10 +32,11 @@
           </v-btn>
         </div>
         <v-divider></v-divider>
-        <v-list-item 
-        v-for="(item, index) in menus" 
-        :key="`menu-${index}`" 
-        :to="item.route">
+        <v-list-item
+          v-for="(item, index) in menus"
+          :key="`menu-${index}`"
+          :to="item.route"
+        >
           <v-list-item-icon>
             <v-icon left>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -50,7 +57,6 @@
           </v-btn>
         </div>
       </template>
-      
     </v-navigation-drawer>
 
     <v-app-bar app color="success" dark>
@@ -62,10 +68,8 @@
 
     <!-- Sizes your content based upon application components -->
     <v-main>
-
       <!-- Provides the application the proper gutter -->
       <v-container fluid>
-
         <!-- If using vue-router -->
         <v-slide-y-transition>
           <router-view></router-view>
@@ -81,61 +85,94 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from "vuex";
 //import Alert from './components/Alert.vue';
 
 export default {
-  components: { 
-    Alert : () => import('./components/Alert.vue')
+  components: {
+    Alert: () => import("./components/Alert.vue"),
+    Dialog: () => import("./components/Dialog.vue"),
   },
-  name: 'App',
+  name: "App",
 
   data: () => ({
-    drawer : false,
-    menus : [
+    drawer: true,
+    menus: [
       {
-        title: 'Home',
-        icon : 'mdi-home',
-        route : '/'
+        title: "Home",
+        icon: "mdi-home",
+        route: "/",
       },
       {
-        title: 'Blogs',
-        icon : 'mdi-note',
-        route : '/blogs'
+        title: "Blogs",
+        icon: "mdi-note",
+        route: "/blogs",
       },
     ],
-    guest : true,
+    apiDomain: "https://demo-api-vue.sanbercloud.com",
+    // guest : true,
     //snackbarStatus: false,
     //snackbarText: 'Anda Berhasil Login'
   }),
-  mounted(){
+  mounted() {
     //this.snackbarStatus = true
+    if (this.token) {
+      this.checkToken(this.token);
+    }
   },
-  methods : {
-    logout(){
-      this.guest = true,
-      this.setAlert({
-        status: true,
-        color : 'success',
-        text : 'Anda Berhasil Logout'
-      })
+  methods: {
+    logout() {
+      const config = {
+        method: "post",
+        url: this.apiDomain + "/api/v2/auth/logout",
+        headers: {
+          Authorization: "Bearer" + this.token,
+        },
+      };
+      this.axios(config)
+        .then(() => {
+          this.setToken("");
+          this.setUser({});
+
+          this.setAlert({
+            status: true,
+            color: "success",
+            text: "Anda berhasil logout",
+          });
+        })
+        .catch((response) => {
+          this.setAlert({
+            status: true,
+            color: "success",
+            text: response.data.error,
+          });
+        });
     },
 
-    login(){
-      this.guest = false,
-      this.setAlert({
-        status: true,
-        color : 'success',
-        text : 'Anda Berhasil Logout'
-      })
+    login() {
+      // this.guest = false,
+      // this.setAlert({
+      //   status: true,
+      //   color : 'success',
+      //   text : 'Anda Berhasil Logout'
+      // })
+      this.setDialogComponent({ component: "login" });
     },
 
     ...mapActions({
-      setAlert : 'alert/set'
-    })
-    
-
-  }
-
+      setAlert: "alert/set",
+      setDialogComponent: "dialog/setComponent",
+      setToken: "auth/setToken",
+      setUser: "auth/setUser",
+      checkToken: "auth/checkToken",
+    }),
+  },
+  computed: {
+    ...mapGetters({
+      guest: "auth/guest",
+      user: "auth/user",
+      token: "auth/token",
+    }),
+  },
 };
 </script>
